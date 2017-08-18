@@ -1,0 +1,82 @@
+#Set minimum version requered
+cmake_minimum_required(VERSION 2.4.6)
+
+#just to avoid the warning
+if(COMMAND cmake_policy)
+     cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
+#set project name
+project(VisNav)
+
+#Append path to the module path
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+
+#OpenCV
+find_package(OpenCV REQUIRED)
+
+find_package(Threads REQUIRED) 
+
+#set the default path for built executables to the "bin" directory
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../bin)
+
+#set the default path for built libraries to the "lib" directory
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../libs )
+
+#set the include directories
+include_directories (${PROJECT_SOURCE_DIR}/../include /usr/local/include)
+
+LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/../3rdpartlib/)
+
+#libraries
+add_library(VisNavUtils VisNavUtils.cpp)
+add_library(VisNavCapture VisNavCapture.cpp)
+#add_library(VisNavUtilsKCFFHog VisNavUtilsKCFFHog.cpp)
+add_library(VisNavCalibration VisNavCalibration.cpp)
+add_library(VisNavOpticalFlow VisNavOpticalFlow.cpp)
+add_library(VisNavDetect VisNavDetect.cpp)
+add_library(VisNavClassifier VisNavClassifier.cpp)
+add_library(VisNavTracking VisNavTracking.cpp VisNavUtilsKCFFHog.cpp)
+add_library(VisNavLandMatching VisNavLandMatching.cpp)
+add_library(VisNavStereoMatching VisNavStereoMatching.cpp)
+add_library(VisNavOdometer VisNavOdometer.cpp)
+add_library(VisNavStitcher VisNavStitcher.cpp)
+add_library(VisNavGesture VisNavGesture.cpp)
+add_library(VisNavAdapter VisNavAdapter.cpp)
+add_library(Data Data.cpp)
+add_library(MsgQueue MsgQueue.cpp)
+add_library(Distribution Distribution.cpp)
+
+#executables
+add_executable(TestCalib ./TestVisNav/TestCalib.cpp)
+add_executable(TestCalibByImages ./TestVisNav/TestCalibByImages.cpp)
+add_executable(TestOptflow ./TestVisNav/TestOptflow.cpp)
+add_executable(TestDetect ./TestVisNav/TestDetect.cpp)
+add_executable(TestTracking ./TestVisNav/TestTracking.cpp)
+add_executable(TestLandMatching ./TestVisNav/TestLandMatching.cpp)
+add_executable(TestOdometer ./TestVisNav/TestOdometer.cpp)
+add_executable(TestStitcher ./TestVisNav/TestStitcher.cpp)
+add_executable(TestGesture ./TestVisNav/TestGesture.cpp)
+add_executable(TestGestureTracking ./TestVisNav/TestGestureTracking.cpp)
+add_executable(TestStereoMatching ./TestVisNav/TestStereoMatching.cpp)
+add_executable(TestRawYUV2Mat ./TestVisNav/TestRawYUV2Mat.cpp)
+add_executable(TestFacePedestrian ./TestVisNav/TestFacePedestrian.cpp)
+
+#link the libraries
+target_link_libraries(TestCalib VisNavCalibration Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestCalibByImages VisNavCalibration Distribution Data MsgQueue VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestOptflow VisNavOpticalFlow Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestDetect VisNavDetect Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestTracking VisNavTracking VisNavClassifier VisNavOpticalFlow VisNavDetect Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestLandMatching VisNavLandMatching VisNavTracking VisNavClassifier VisNavOpticalFlow VisNavDetect Distribution Data MsgQueue VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestOdometer VisNavOdometer VisNavStereoMatching VisNavCalibration Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestStitcher VisNavStitcher VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestGesture VisNavGesture VisNavStereoMatching VisNavCalibration VisNavDetect VisNavTracking VisNavClassifier VisNavOpticalFlow Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+target_link_libraries(TestGestureTracking VisNavGesture VisNavStereoMatching VisNavCalibration VisNavDetect VisNavTracking VisNavClassifier VisNavOpticalFlow  Distribution Data MsgQueue VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestStereoMatching VisNavStereoMatching VisNavCalibration Distribution Data MsgQueue VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestRawYUV2Mat VisNavUtils ${OpenCV_LIBS})
+target_link_libraries(TestFacePedestrian VisNavTracking VisNavClassifier VisNavOpticalFlow VisNavDetect Distribution Data MsgQueue VisNavUtils VisNavCapture ${OpenCV_LIBS})
+
+#set optimization level 
+set(CMAKE_BUILD_TYPE Release)
+

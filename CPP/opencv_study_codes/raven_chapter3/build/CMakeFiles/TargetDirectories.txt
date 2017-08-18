@@ -1,0 +1,4 @@
+/home/shadow_raven/MyDataBase/CPP/opencv/study/cppcodes/raven_chapter3/build/CMakeFiles/edit_cache.dir
+/home/shadow_raven/MyDataBase/CPP/opencv/study/cppcodes/raven_chapter3/build/CMakeFiles/raven3_2.dir
+/home/shadow_raven/MyDataBase/CPP/opencv/study/cppcodes/raven_chapter3/build/CMakeFiles/rebuild_cache.dir
+/home/shadow_raven/MyDataBase/CPP/opencv/study/cppcodes/raven_chapter3/build/CMakeFiles/raven3_1.dir
