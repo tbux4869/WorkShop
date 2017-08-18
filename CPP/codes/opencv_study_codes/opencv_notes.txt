@@ -1,0 +1,322 @@
+
+
+chapter 3
+
+@bool imwrite(const string& filename, Inputarray img, const vector<int>& params=vector<int>());
+
+解析：1）filename填入文件名，例如“ dina.jpg”
+	  2）img填入一副图像矩阵Mat
+	  3) params设置参数，对不同的图片有不同作用：
+	      *对JPEG图像，0-100，图片质量：CV_IMWRITE_JPEG_QUALITY
+	      *对PNG，0-9，压缩级别：CV_IMWRITE_PNG_COMPRESSION
+	      *对PPM,PGM,PBM等，0或1（默认），二进制格式标志，CV_IMWRITE_PXM_BINARY
+ 
+	 
+Chapter4 图像容器Mat类
+	 
+@opencv的应用中，除非不得已，不可进行大图像的（Mat类）的复制，这会大大降低运行速度。	 
+	 
+@针对图像复制，opencv的计数机制：每个Mat对象有自己的信息头，但是共享同一个矩阵。拷贝构造函数只复制信息头和指向矩阵的指针，而不复制矩阵。
+
+@ROI：感兴趣区域 region of interest。 若要创建一个ROI，只需要创建包含边界信息的信息头：
+Mat D(A, Rect(10, 10, 100, 100)); // 使用矩形界定
+Mat E = A(Range:all(), Range(1,3)); // 使用行和列界定
+
+@当矩阵不再被需要，最后一个访问它的Mat类对象负责该矩阵的释放；
+
+@复制矩阵本身的命令： clone（）， copyTo（）
+
+@要点：
+1. opencv输出图像内存的分配是自动完成的；
+2. c++接口的opencv不需要考虑内存释放问题；
+3. 赋值，拷贝只赋值信息头；
+4. 赋值矩阵专门的函数；
+
+
+4.1.3 像素值的储存
+	 
+@颜色空间
+1. RGB--最常见空间，常引入alpha（A）来表达透明色
+2. HSV和HLS通过色调，饱和度，亮度，对比度描述颜色
+3. YCrCb流行于JPEG图片
+4. CIE L*a*b* --感知均匀的颜色空间，度量两个颜色之间的距离
+
+@每个组成元素的定义域取决于其数据类型，如何储存一个元素决定了在其定义域上能够控制的精度。增加元素的尺寸也会增加图像所占的内存空间
+
+4.1.4 七种方式显示创建Mat类对象
+1. Mat() ： 
+	Mat m(2,2, CV_8UC3, Scalar(0,0,255));
+	会得到下列结果：
+	m=[0,0,255,0,0,255;
+	      0,0,255,0,0,255]
+解析： m（行数，列数，特别参数，内容向量）
+>行数和列数定义了尺寸
+>特别参数指定储存元素的数据类型，每个矩阵点的通道数：
+	CV_[位数][带符号与否][类型前缀][通道数]
+	上述CV_8UC3指的是8位的unsigned char型， 每个像素由三个元素（RGB）组成三通道
+>Scalar储存设定值用来作为初始化矩阵的内容，也可用于表示颜色
+
+2. c++中通过构造函数初始化
+int sz[3] = {2,2,2};
+Mat L(3, sz, CV_8UC, Scalar::all(0));
+
+>上述命令创建了一个4维矩阵，每一维的列数为3,2,2,2,； 这样去理解，访问第一个对象（py）：L[0][0][0][1].
+>Scalar::all(0), 全部内容设为0
+
+3. 为已存在的iplImage指针创建信息头
+>IplImage* img = cvLoadImage("1.jpg",1);
+>Mat mtx(img); // 转换IplImage*->Mat
+
+4. Create()
+>Mat类中有个函数可进行初始化
+M.create(4,4,CV_8UC（2）)；
+
+>需要注意一下，这个方法不能设矩阵初值，本质上是改变尺寸重新为矩阵数据开辟内存
+
+5. Matlab式初始化方式
+
+zeros(), ones(), eyes():
+
+Mat E = Mat::eye(4,4,CV_64F) 	 
+
+
+6. 小型矩阵使用逗号分隔式初始化函数
+Mat c = (Mat_<double>(3,3)<<0,-1,0,-1,5,-1,0,-1,0);
+
+7. 为已存在对象创建新信息头
+ 
+ Mat rowclone = C.row(1).clone();
+ 
+ 	 
+4.1.5 格式化输出方法
+
+@使用randu（）产生随机值填充矩阵
+ Mat r = Mat(10,3,CV_8UC3);
+ 
+randu(r, Scalar::all(0), Scalar::all(255)); 0~255之间随机赋值
+
+@格式化输出
+1. python风格： format(r, "python")
+2. CSV风格： format(r, "csv" )
+3. Numpy风格： format(r, "numpy") //输出array
+4. C风格： format(r, "C") // { ......}
+
+@其他数据结构
+1. 二维点： Point2f p(6,2); cout<<p<<endl;
+2. 三维点：Point3f p(0,1,2); cout<<p<<endl;
+3. 基于Mat类的std::vector :
+	vector<float>  v;
+	v.push_back(3);
+	v.push_back(5);
+	v.push_back(7);
+	
+	cout<<v<<endl;
+	输出显示：【3 ； 5； 7】
+	
+4. std::vector类的点
+	vector<float>  points(20);
+	for (size_t i=0; i<points.size(); ++i){
+		points[i] = Point2f ((float)(i * 5), (float)(i % 7));
+		cout<<points<<endl;
+	}
+	输出显示为：
+		【0, 0
+		   5, 1
+		   10， 2
+		   .........
+		   95, 5】
+		   
+4.2常用数据结构和函数
+
+@point类
+Point p;
+p.x=10;
+p.y=8;
+
+>定义一个点（10,8）
+
+因为opencv含有以下：
+typedef Point_<int> Point2i;
+typedef Point2i Point;
+typedef Point_<float> Point2f;
+
+所以，Point_<int>,  Point2i,  Point  相互等价；Point_<float>,  Point2f  相互等价。
+
+@Scalar类： 表达颜色
+>是一个四个元素的数组，用于传递像素值；
+>只写三个参数，cv会默认只使用三个参数
+>颜色参数表达式：Scalar（a,b,c）
+>红色：c；绿色：b；蓝色：a；
+
+@Size类：表达尺寸
+>Size_<int> = Size2i = Size
+>实例：Size（5,5);//构造出的Size宽度和高度都为5
+
+@Rect类
+>成员：x, y, width, height; 左上角点的坐标， 以及矩形的宽和高；
+>Size（）返回尺寸；area（）返回矩形面积； contains（P）判断P在不在矩形内部； inside（Rect）判断矩形是否在该矩形内部；tl（）返回左上角点坐标；br（）返回右下角点坐标；
+
+>求矩形的交集：Rect rect= rect1 & rect2; 并集： Rect rect = rect1 | rect2;
+
+>矩形的平移： Rect rectshift = rect + point; 缩放： Rect rectscale = rect + size;
+
+
+@cvtColor(): 颜色空间转换
+cvtColor(输入图像容器，输出图像容器，颜色空间转换标识符，通道数)	
+颜色空间转换标识符：CV_GRAY2BGR ...... (CV2)
+		   COLOR_GRAY2BGR ......(CV3)
+*OPENCV默认的图片通道储存顺序是BGR—蓝绿红；
+
+@其他小贴士
+>Matx: 轻量级Mat，一个2X3的float型Matx声明为Matx23f
+>Vec: 一维的Matx
+>Range类: Range（a，b） = python的range
+>RNG（）初始化随机数状态生成器
+
+
+5. CORE组件进阶知识
+主要内容：
+	-《操作像素》 -《设置ROI》 -《图像混合》 -《分离颜色通道》 -《多通道图像的混合》 -《调整对比度和亮度》
+	-《对图像进行离散傅里叶变换》 -《输入输出XML和YAML文件》
+
+5.1 操作像素
+@颜色空间缩减
+目的：降低运算复杂度
+实施原理：将现有颜色空间除以一个某个输入已获得较少的颜色数量
+例如，若一个通道的变化范围在0～ 255，则可以定义0-9为0,10-19为1等等则将三通道255X255X255的情况转变为26X26X26的情况
+TIPS：C++中int类型的除法会自动截余；如int a = 12, 则有(12/10)*5=1*5=5
+
+处理像素时，因为一共只有0-255个像素，256种情况，可以先将所有情况计算好结果存放在一个表中，在实际运算的时候直接调用表里计算好的结果
+则颜色空间缩减算法：
+1）遍历图像矩阵的每一个像素
+2）对像素应用公式：
+	总体计算：
+	int divideWith = 10;
+	uchar table[256];
+	for (int i=0; i< 256; ++i){
+		table[i] = divideWith*(i / divideWith);
+	}
+	直接调用：
+	p[j] = table [p[j]]
+
+对于较大的图像，有效的方法是预先计算所有可能的值，然后需要这些值的时候，利用查找表直接赋值即可；
+
+
+@LUT函数： Look up table
+原型为operationsOnArrays:LUT()<lut>
+用于批量进行图像元素查找，扫描以及操作图像。
+
+
+
+
+
+
+
+	 
+	 
+10. Feature2d 组件
+@角点检测概述	 
+1. 图像特征点一般分为：
+	1）边缘edge；
+	2) 角点：在任意方向的一个微小变动都会引起灰度很大的变化的点；
+	3）斑点（Blobs）；
+	 
+2. 关于角点的描述
+	1）一阶导数（灰度的梯度）的局部最大所对应的像素点；
+	2）两条及以上边缘（edge）的交点； 	 
+	3）图像中，梯度值和梯度方向的变化速率都很高的店；
+	4）角点处的一阶导数最大，但二阶导数为0，它指示的是物体边缘变化不连续的方向；
+ 
+	 
+@现有的角点检测算法
+1. 基于灰度图像:
+	1）基于梯度；
+	2）基于模板：
+		>主要考虑像素点邻域的灰度变化（图像亮度变化），将变化足够大的点定义为角点；
+		>Kitchen-Rosenfeld角点检测
+		>Harris角点检测
+		>KLT角点检测
+		>SUSAN角点检测
+	3）基于模板梯度组合；
+2. 基于二值图像;
+3. 基于轮廓曲线;
+
+	 
+@Harris角点检测
+1.优点：
+	1）直接基于灰度图像；
+	2）稳定性高；
+	3）对L型角点的检测精度高；
+2. 缺点：
+	1）采用高斯滤波，运算效率低；
+	2）角点信息会产生丢失和位置偏移；
+	3）角点的提取会有聚簇的现象；
+ 
+3.opencv中的函数：
+	cornerHarris()	 
+	 
+	 
+	 
+@KeyPoint 类	
+ 
+	class KeyPoint{
+		Point2f  pt; //坐标
+		float  size; // 特征点邻域直径
+		float  angle; // 特征点的方向，[0~360]，不使用负数
+		float  response;
+		int  octave; // 特征点所在的图像金字塔的组
+		int  class_id; // 用于聚类的id
+	}
+	
+		 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
