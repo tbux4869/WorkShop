@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xin/Downloads/cpp/Banking Record System C++ Project/gymrecordcpp/gym_record_system.cpp
+iostream
+-
+fstream
+-
+cstdlib
+-
+stdlib.h
+-
+

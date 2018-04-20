@@ -1,0 +1,3 @@
+/home/xin/Downloads/cpp/Banking Record System C++ Project/gymrecordcpp/build/CMakeFiles/edit_cache.dir
+/home/xin/Downloads/cpp/Banking Record System C++ Project/gymrecordcpp/build/CMakeFiles/rebuild_cache.dir
+/home/xin/Downloads/cpp/Banking Record System C++ Project/gymrecordcpp/build/CMakeFiles/GymRecordSystem.dir
